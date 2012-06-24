@@ -19,20 +19,21 @@ package org.msgpack.rpc.loop.netty;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.msgpack.MessagePack;
-import org.msgpack.rpc.Session;
 import org.msgpack.rpc.Server;
-import org.msgpack.rpc.loop.EventLoop;
-import org.msgpack.rpc.transport.ServerTransport;
-import org.msgpack.rpc.transport.ClientTransport;
-import org.msgpack.rpc.config.TcpServerConfig;
+import org.msgpack.rpc.Session;
 import org.msgpack.rpc.config.TcpClientConfig;
+import org.msgpack.rpc.config.TcpServerConfig;
+import org.msgpack.rpc.loop.EventLoop;
+import org.msgpack.rpc.transport.ClientTransport;
+import org.msgpack.rpc.transport.ServerTransport;
 
 public class NettyEventLoop extends EventLoop {
+    
+    
     public NettyEventLoop(ExecutorService workerExecutor,
             ExecutorService ioExecutor,
             ScheduledExecutorService scheduledExecutor, MessagePack messagePack) {
@@ -44,7 +45,7 @@ public class NettyEventLoop extends EventLoop {
 
     public synchronized ClientSocketChannelFactory getClientFactory() {
         if (clientFactory == null) {
-            clientFactory = new NioClientSocketChannelFactory(getIoExecutor(),
+            clientFactory = new SocketChannelFactoryFactory().createClientFactory(getIoExecutor(),
                     getWorkerExecutor()); // TODO: workerCount
         }
         return clientFactory;
@@ -52,7 +53,7 @@ public class NettyEventLoop extends EventLoop {
 
     public synchronized ServerSocketChannelFactory getServerFactory() {
         if (serverFactory == null) {
-            serverFactory = new NioServerSocketChannelFactory(getIoExecutor(),
+            serverFactory = new SocketChannelFactoryFactory().createServerFactory(getIoExecutor(),
                     getWorkerExecutor()); // TODO: workerCount
             // messages will be dispatched to worker thread on server.
             // see useThread(true) in NettyTcpClientTransport().
